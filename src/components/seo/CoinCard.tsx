@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { Coin } from '../../lib/queries';
 import { formatMarketCap, formatChange } from '../../lib/seo';
+import CoinAvatar from './CoinAvatar';
 
 interface CoinCardProps {
   coin: Coin;
@@ -17,9 +18,7 @@ export default function CoinCard({ coin }: CoinCardProps) {
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#14f195]/10 flex items-center justify-center text-[#14f195] font-bold text-sm flex-shrink-0">
-            {coin.ticker.slice(0, 2)}
-          </div>
+          <CoinAvatar imageUrl={coin.image_url} ticker={coin.ticker} size="md" />
           <div>
             <div className="font-semibold text-white text-sm leading-tight group-hover:text-[#14f195] transition-colors">
               {coin.name}

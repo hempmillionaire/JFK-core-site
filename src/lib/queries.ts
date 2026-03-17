@@ -14,6 +14,18 @@ export interface Coin {
   market_cap: number;
   volume_24h: number;
   price_change_24h: number;
+  liquidity_usd: number;
+  fdv: number;
+  trending_score: number;
+  pair_created_at: string | null;
+  dexscreener_pair_id: string;
+  dexscreener_pair_url: string;
+  birdeye_url: string;
+  dextools_url: string;
+  image_url: string;
+  website_url: string;
+  x_url: string;
+  telegram_url: string;
   is_featured: boolean;
   is_trending: boolean;
   is_new: boolean;
@@ -95,7 +107,7 @@ export async function getTrendingCoins(): Promise<Coin[]> {
     .select('*')
     .eq('is_indexed', true)
     .eq('is_trending', true)
-    .order('volume_24h', { ascending: false });
+    .order('trending_score', { ascending: false });
   if (error) return [];
   return data || [];
 }
@@ -105,6 +117,7 @@ export async function getNewCoins(): Promise<Coin[]> {
     .from('memecoins')
     .select('*')
     .eq('is_indexed', true)
+    .order('pair_created_at', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false })
     .limit(20);
   if (error) return [];
@@ -153,7 +166,10 @@ export async function getCategoryCoins(categorySlug: string): Promise<Coin[]> {
     .eq('category_slug', categorySlug)
     .order('sort_order', { ascending: true });
   if (error) return [];
-  return (data || []).map((row: { memecoins: Coin }) => row.memecoins).filter(Boolean);
+  return (data || []).map((row: { memecoins: Coin | Coin[] }) => {
+    const m = row.memecoins;
+    return Array.isArray(m) ? m[0] : m;
+  }).filter(Boolean) as Coin[];
 }
 
 export async function getFeaturedCoin(): Promise<Coin | null> {
@@ -166,12 +182,12 @@ export async function getFeaturedCoin(): Promise<Coin | null> {
   return data;
 }
 
-export async function getIndexedCoins(): Promise<Coin[]> {
+export async function getIndexedCoins(): Promise<Pick<Coin, 'slug' | 'updated_at'>[]> {
   const { data, error } = await supabase
     .from('memecoins')
     .select('slug, updated_at')
     .eq('is_indexed', true)
     .order('market_cap', { ascending: false });
   if (error) return [];
-  return data || [];
+  return (data || []) as Pick<Coin, 'slug' | 'updated_at'>[];
 }

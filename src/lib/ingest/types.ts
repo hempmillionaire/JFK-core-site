@@ -11,6 +11,18 @@ export interface IngestRecord {
   market_cap: number;
   volume_24h: number;
   price_change_24h: number;
+  liquidity_usd?: number;
+  fdv?: number;
+  pair_created_at?: string | null;
+  trending_score?: number;
+  dexscreener_pair_id?: string;
+  dexscreener_pair_url?: string;
+  birdeye_url?: string;
+  dextools_url?: string;
+  image_url?: string;
+  website_url?: string;
+  x_url?: string;
+  telegram_url?: string;
   is_featured?: boolean;
   is_trending?: boolean;
   is_new?: boolean;

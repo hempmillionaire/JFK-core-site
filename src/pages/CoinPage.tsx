@@ -5,6 +5,7 @@ import SEOHead from '../components/seo/SEOHead';
 import Breadcrumb from '../components/seo/Breadcrumb';
 import SEOPageLayout from '../components/seo/SEOPageLayout';
 import CoinCard from '../components/seo/CoinCard';
+import CoinAvatar from '../components/seo/CoinAvatar';
 import { getCoinBySlug, getFAQsByCoin, getRelatedCoins, Coin, FAQ } from '../lib/queries';
 import { buildCanonical, buildBreadcrumbSchema, buildFAQSchema, formatMarketCap, formatPrice, formatChange } from '../lib/seo';
 
@@ -132,9 +133,7 @@ export default function CoinPage() {
         <article>
           <header className="mb-8">
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-14 h-14 rounded-full bg-[#14f195]/10 flex items-center justify-center text-[#14f195] font-black text-lg flex-shrink-0">
-                {coin.ticker.slice(0, 2)}
-              </div>
+              <CoinAvatar imageUrl={coin.image_url} ticker={coin.ticker} size="lg" />
               <div>
                 <h1 className="text-2xl sm:text-3xl font-black text-white">{coin.name}</h1>
                 <div className="flex flex-wrap items-center gap-2 mt-1">
@@ -178,35 +177,40 @@ export default function CoinPage() {
             </p>
           </section>
 
-          <section className="mb-8">
-            <h2 className="text-xl font-bold text-white mb-4">Track {coin.name} Live</h2>
-            <div className="flex flex-wrap gap-3">
-              <a
-                href={`https://dexscreener.com/solana/${coin.contract_address}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 bg-[#0f1420] border border-[#14f195]/10 text-gray-300 px-4 py-2 rounded-xl hover:border-[#14f195]/30 hover:text-white transition-all text-sm"
-              >
-                DexScreener <ExternalLink size={12} />
-              </a>
-              <a
-                href={`https://www.dextools.io/app/en/solana/pair-explorer/${coin.contract_address}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 bg-[#0f1420] border border-[#14f195]/10 text-gray-300 px-4 py-2 rounded-xl hover:border-[#14f195]/30 hover:text-white transition-all text-sm"
-              >
-                DEXTools <ExternalLink size={12} />
-              </a>
-              <a
-                href={`https://solscan.io/token/${coin.contract_address}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 bg-[#0f1420] border border-[#14f195]/10 text-gray-300 px-4 py-2 rounded-xl hover:border-[#14f195]/30 hover:text-white transition-all text-sm"
-              >
-                Solscan <ExternalLink size={12} />
-              </a>
-            </div>
-          </section>
+          {(() => {
+            const trackerLinks: { label: string; href: string }[] = [];
+            if (coin.dexscreener_pair_url) {
+              trackerLinks.push({ label: 'DexScreener', href: coin.dexscreener_pair_url });
+            }
+            if (coin.birdeye_url) {
+              trackerLinks.push({ label: 'Birdeye', href: coin.birdeye_url });
+            }
+            if (coin.dextools_url) {
+              trackerLinks.push({ label: 'DEXTools', href: coin.dextools_url });
+            }
+            if (coin.contract_address) {
+              trackerLinks.push({ label: 'Solscan', href: `https://solscan.io/token/${coin.contract_address}` });
+            }
+            if (trackerLinks.length === 0) return null;
+            return (
+              <section className="mb-8">
+                <h2 className="text-xl font-bold text-white mb-4">Track {coin.name} Live</h2>
+                <div className="flex flex-wrap gap-3">
+                  {trackerLinks.map(link => (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 bg-[#0f1420] border border-[#14f195]/10 text-gray-300 px-4 py-2 rounded-xl hover:border-[#14f195]/30 hover:text-white transition-all text-sm"
+                    >
+                      {link.label} <ExternalLink size={12} />
+                    </a>
+                  ))}
+                </div>
+              </section>
+            );
+          })()}
 
           {faqs.length > 0 && (
             <section className="mb-8">
